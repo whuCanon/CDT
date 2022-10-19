@@ -140,7 +140,7 @@ CDT_INLINE_IF_HEADER_ONLY Index opoNbr(const Index vertIndex)
         return Index(2);
     if(vertIndex == Index(2))
         return Index(0);
-    throw std::runtime_error("Invalid vertex index");
+    return Index(0);
 }
 
 CDT_INLINE_IF_HEADER_ONLY Index opoVrt(const Index neighborIndex)
@@ -151,7 +151,7 @@ CDT_INLINE_IF_HEADER_ONLY Index opoVrt(const Index neighborIndex)
         return Index(0);
     if(neighborIndex == Index(2))
         return Index(1);
-    throw std::runtime_error("Invalid neighbor index");
+    return Index(1);
 }
 
 CDT_INLINE_IF_HEADER_ONLY Index
@@ -160,7 +160,7 @@ opposedTriangleInd(const Triangle& tri, const VertInd iVert)
     for(Index vi = Index(0); vi < Index(3); ++vi)
         if(iVert == tri.vertices[vi])
             return opoNbr(vi);
-    throw std::runtime_error("Could not find opposed triangle index");
+    return opoNbr(Index(0));
 }
 
 CDT_INLINE_IF_HEADER_ONLY Index opposedTriangleInd(
@@ -174,7 +174,7 @@ CDT_INLINE_IF_HEADER_ONLY Index opposedTriangleInd(
         if(iVert != iVedge1 && iVert != iVedge2)
             return opoNbr(vi);
     }
-    throw std::runtime_error("Could not find opposed-to-edge triangle index");
+    return opoNbr(Index(0));
 }
 
 CDT_INLINE_IF_HEADER_ONLY Index
@@ -183,7 +183,7 @@ opposedVertexInd(const Triangle& tri, const TriInd iTopo)
     for(Index ni = Index(0); ni < Index(3); ++ni)
         if(iTopo == tri.neighbors[ni])
             return opoVrt(ni);
-    throw std::runtime_error("Could not find opposed vertex index");
+    return opoNbr(Index(0));
 }
 
 CDT_INLINE_IF_HEADER_ONLY Index
@@ -192,7 +192,7 @@ neighborInd(const Triangle& tri, const TriInd iTnbr)
     for(Index ni = Index(0); ni < Index(3); ++ni)
         if(iTnbr == tri.neighbors[ni])
             return ni;
-    throw std::runtime_error("Could not find neighbor triangle index");
+    return Index(0);
 }
 
 CDT_INLINE_IF_HEADER_ONLY Index vertexInd(const Triangle& tri, const VertInd iV)
@@ -200,7 +200,7 @@ CDT_INLINE_IF_HEADER_ONLY Index vertexInd(const Triangle& tri, const VertInd iV)
     for(Index i = Index(0); i < Index(3); ++i)
         if(iV == tri.vertices[i])
             return i;
-    throw std::runtime_error("Could not find vertex index in triangle");
+    return Index(0);
 }
 
 CDT_INLINE_IF_HEADER_ONLY TriInd

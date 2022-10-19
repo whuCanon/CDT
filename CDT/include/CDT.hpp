@@ -163,7 +163,7 @@ void Triangulation<T, TNearPointLocator>::eraseOuterTrianglesAndHoles()
     for(std::size_t iT = 0; iT != triangles.size(); ++iT)
     {
         if(triDepths[iT] % 2 == 0)
-            toErase.push_back(iT);
+            toErase.push_back((unsigned int)iT);
     }
 
     eraseTrianglesAtIndices(toErase.begin(), toErase.end());
@@ -385,8 +385,7 @@ Triangulation<T, TNearPointLocator>::intersectedTriangle(
                 return make_tuple(iT, iP1, iP2);
         }
     }
-    throw std::runtime_error("Could not find vertex triangle intersected by "
-                             "edge. Note: can be caused by duplicate points.");
+    return make_tuple(0, 0, 0);
 }
 
 template <typename T, typename TNearPointLocator>
@@ -658,7 +657,7 @@ Triangulation<T, TNearPointLocator>::trianglesAt(const V2d<T>& pos) const
             out[1] = t.neighbors[edgeNeighbor(loc)];
         return out;
     }
-    throw std::runtime_error("No triangle was found at position");
+    return out;
 }
 
 template <typename T, typename TNearPointLocator>
@@ -714,8 +713,6 @@ array<TriInd, 2> Triangulation<T, TNearPointLocator>::walkingSearchTrianglesAt(
     const V2d<T>& v2 = vertices[t.vertices[1]];
     const V2d<T>& v3 = vertices[t.vertices[2]];
     const PtTriLocation::Enum loc = locatePointTriangle(pos, v1, v2, v3);
-    if(loc == PtTriLocation::Outside)
-        throw std::runtime_error("No triangle was found at position");
     out[0] = iT;
     if(isOnEdge(loc))
         out[1] = t.neighbors[edgeNeighbor(loc)];
@@ -943,7 +940,7 @@ RemapEdges(std::vector<Edge>& edges, const std::vector<std::size_t>& mapping)
 {
     for(std::vector<Edge>::iterator it = edges.begin(); it != edges.end(); ++it)
     {
-        *it = Edge(mapping[it->v1()], mapping[it->v2()]); // remap
+        *it = Edge((unsigned int)mapping[it->v1()], (unsigned int)mapping[it->v2()]); // remap
     }
 }
 

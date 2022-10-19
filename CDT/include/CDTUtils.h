@@ -171,7 +171,7 @@ Box2d<T> envelopBox(
 {
     const T max = std::numeric_limits<T>::max();
     Box2d<T> box = {{max, max}, {-max, -max}};
-    for(; first != last; ++first)
+    for (; first != last; ++first)
     {
         box.min.x = std::min(getX(*first), box.min.x);
         box.max.x = std::max(getX(*first), box.max.x);
@@ -183,7 +183,7 @@ Box2d<T> envelopBox(
 
 /// Bounding box of a collection of 2D points
 template <typename T>
-CDT_EXPORT Box2d<T> envelopBox(const std::vector<V2d<T> >& vertices);
+CDT_EXPORT Box2d<T> envelopBox(const std::vector<V2d<T>>& vertices);
 
 /// Edge connecting two vertices: vertex with smaller index is always first
 /// \note: hash Edge is specialized at the bottom

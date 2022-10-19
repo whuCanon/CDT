@@ -81,16 +81,16 @@ typedef LayerDepth BoundaryOverlapCount;
  * inserting new points. Provides methods: 'addPoint(vPos, iV)' and
  * 'nearPoint(vPos) -> iV'
  */
-template <typename T, typename TNearPointLocator = LocatorKDTree<T> >
+template <typename T, typename TNearPointLocator = LocatorKDTree<T>>
 class CDT_EXPORT Triangulation
 {
 public:
-    typedef std::vector<V2d<T> > V2dVec;              ///< Vertices vector
+    typedef std::vector<V2d<T>> V2dVec;               ///< Vertices vector
     typedef std::vector<TriIndVec> VerticesTriangles; ///< Triangles by vertex
-    V2dVec vertices;            ///< triangulation's vertices
-    TriangleVec triangles;      ///< triangulation's triangles
-    EdgeUSet fixedEdges;        ///<  triangulation's constraints (fixed edges)
-    VerticesTriangles vertTris; ///< triangles adjacent to each vertex
+    V2dVec vertices;                                  ///< triangulation's vertices
+    TriangleVec triangles;                            ///< triangulation's triangles
+    EdgeUSet fixedEdges;                              ///<  triangulation's constraints (fixed edges)
+    VerticesTriangles vertTris;                       ///< triangles adjacent to each vertex
 
     /** Stores count of overlapping boundaries for a fixed edge. If no entry is
      * present for an edge: no boundaries overlap.
@@ -140,7 +140,7 @@ public:
         TGetVertexCoordX getX,
         TGetVertexCoordY getY);
     /// Insert vertices into triangulation
-    void insertVertices(const std::vector<V2d<T> >& vertices);
+    void insertVertices(const std::vector<V2d<T>>& vertices);
     /**
      * Insert constraints (custom-type fixed edges) into triangulation
      * @note If some edge appears more than once in @ref insertEdges input this
@@ -253,7 +253,7 @@ private:
         const std::vector<VertInd>& points) const;
     TriInd pseudopolyOuterTriangle(const VertInd ia, const VertInd ib) const;
     TriInd addTriangle(const Triangle& t); // note: invalidates iterators!
-    TriInd addTriangle(); // note: invalidates triangle iterators!
+    TriInd addTriangle();                  // note: invalidates triangle iterators!
     void makeDummy(const TriInd iT);
     void eraseDummies();
     void eraseSuperTriangleVertices(); // no effect if custom geometry is used
@@ -327,7 +327,7 @@ void RemoveDuplicates(
  * @returns information about duplicated vertices that were removed.
  */
 template <typename T>
-CDT_EXPORT DuplicatesInfo RemoveDuplicates(std::vector<V2d<T> >& vertices);
+CDT_EXPORT DuplicatesInfo RemoveDuplicates(std::vector<V2d<T>>& vertices);
 
 /**
  * Remap vertex indices in edges (in-place) using given vertex-index mapping.
@@ -377,7 +377,7 @@ DuplicatesInfo RemoveDuplicatesAndRemapEdges(
  */
 template <typename T>
 CDT_EXPORT DuplicatesInfo RemoveDuplicatesAndRemapEdges(
-    std::vector<V2d<T> >& vertices,
+    std::vector<V2d<T>>& vertices,
     std::vector<Edge>& edges);
 
 /**
@@ -500,7 +500,7 @@ namespace boost
 #endif
 {
 template <typename T>
-struct hash<CDT::V2d<T> >
+struct hash<CDT::V2d<T>>
 {
     size_t operator()(const CDT::V2d<T>& xy) const
     {
@@ -527,7 +527,7 @@ void random_shuffle(RandomIt first, RandomIt last)
 {
     typename std::iterator_traits<RandomIt>::difference_type i, n;
     n = last - first;
-    for(i = n - 1; i > 0; --i)
+    for (i = n - 1; i > 0; --i)
     {
         std::swap(first[i], first[randGenerator() % (i + 1)]);
     }
@@ -550,7 +550,7 @@ void Triangulation<T, TNearPointLocator>::insertVertices(
     TGetVertexCoordY getY)
 {
     detail::randGenerator.seed(9001); // ensure deterministic behavior
-    if(vertices.empty())
+    if (vertices.empty())
     {
         addSuperTriangle(envelopBox<T>(first, last, getX, getY));
     }
@@ -558,25 +558,25 @@ void Triangulation<T, TNearPointLocator>::insertVertices(
     const std::size_t nExistingVerts = vertices.size();
 
     vertices.reserve(nExistingVerts + std::distance(first, last));
-    for(TVertexIter it = first; it != last; ++it)
+    for (TVertexIter it = first; it != last; ++it)
         addNewVertex(V2d<T>::make(getX(*it), getY(*it)), TriIndVec());
 
-    switch(m_vertexInsertionOrder)
+    switch (m_vertexInsertionOrder)
     {
-    case VertexInsertionOrder::AsProvided:
-        for(TVertexIter it = first; it != last; ++it)
-            insertVertex(VertInd(nExistingVerts + std::distance(first, it)));
-        break;
-    case VertexInsertionOrder::Randomized:
-        std::vector<VertInd> ii(std::distance(first, last));
-        typedef std::vector<VertInd>::iterator Iter;
-        VertInd value = nExistingVerts;
-        for(Iter it = ii.begin(); it != ii.end(); ++it, ++value)
-            *it = value;
-        detail::random_shuffle(ii.begin(),ii.end());
-        for(Iter it = ii.begin(); it != ii.end(); ++it)
-            insertVertex(*it);
-        break;
+        case VertexInsertionOrder::AsProvided:
+            for (TVertexIter it = first; it != last; ++it)
+                insertVertex(VertInd(nExistingVerts + std::distance(first, it)));
+            break;
+        case VertexInsertionOrder::Randomized:
+            std::vector<VertInd> ii(std::distance(first, last));
+            typedef std::vector<VertInd>::iterator Iter;
+            VertInd value = (unsigned int)nExistingVerts;
+            for (Iter it = ii.begin(); it != ii.end(); ++it, ++value)
+                *it = value;
+            detail::random_shuffle(ii.begin(), ii.end());
+            for (Iter it = ii.begin(); it != ii.end(); ++it)
+                insertVertex(*it);
+            break;
     }
 }
 
@@ -591,7 +591,7 @@ void Triangulation<T, TNearPointLocator>::insertEdges(
     TGetEdgeVertexStart getStart,
     TGetEdgeVertexEnd getEnd)
 {
-    for(; first != last; ++first)
+    for (; first != last; ++first)
     {
         // +3 to account for super-triangle vertices
         insertEdge(Edge(
@@ -620,13 +620,13 @@ DuplicatesInfo FindDuplicates(
     const std::size_t verticesSize = std::distance(first, last);
     DuplicatesInfo di = {
         std::vector<std::size_t>(verticesSize), std::vector<std::size_t>()};
-    for(std::size_t iIn = 0, iOut = iIn; iIn < verticesSize; ++iIn, ++first)
+    for (std::size_t iIn = 0, iOut = iIn; iIn < verticesSize; ++iIn, ++first)
     {
         typename PosToIndex::const_iterator it;
         bool isUnique;
         tie(it, isUnique) = uniqueVerts.insert(
             std::make_pair(V2d<T>::make(getX(*first), getY(*first)), iOut));
-        if(isUnique)
+        if (isUnique)
         {
             di.mapping[iIn] = iOut++;
             continue;
