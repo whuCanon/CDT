@@ -265,9 +265,9 @@ private:
 public:
     size_t m_size;
     template <typename S>
-    friend class ExpansionBase; //access for base class
+    friend class ExpansionBase; // access for base class
     template <typename S, size_t M>
-    friend class Expansion; //access for expansions of different size
+    friend class Expansion; // access for expansions of different size
 
     Expansion()
         : m_size(0)
@@ -284,13 +284,13 @@ public:
 
     Expansion(const Expansion& other) { *this = other; }
 
-    //vector like convenience functions
+    // vector like convenience functions
     size_t size() const { return m_size; }
     bool empty() const { return 0 == m_size; }
     void push_back(const T v) { stdx::array<T, N>::operator[](m_size++) = v; }
 
 public:
-    //estimates of expansion value
+    // estimates of expansion value
     T mostSignificant() const { return empty() ? T(0) : stdx::array<T, N>::operator[](m_size - 1); }
     T estimate() const { return std::accumulate(stdx::array<T, N>::cbegin(), stdx::array<T, N>::cbegin() + size(), T(0)); }
 
@@ -323,7 +323,7 @@ public:
     }
 };
 
-//std::fma is faster than dekker's product when the processor instruction is available
+// std::fma is faster than dekker's product when the processor instruction is available
 #ifdef FP_FAST_FMAF
 static const bool fp_fast_fmaf = true;
 #else
@@ -372,7 +372,7 @@ private:
     PREDICATES_PORTABLE_STATIC_ASSERT(std::numeric_limits<T>::is_iec559, Requires_IEC_559_IEEE_754_floating_point_type);
     PREDICATES_PORTABLE_STATIC_ASSERT(2 == std::numeric_limits<T>::radix, Requires_base_2_floating_point_type);
 
-    //combine result + roundoff error into expansion
+    // combine result + roundoff error into expansion
     static inline Expansion<T, 2> MakeExpansion(const T value, const T tail)
     {
         Expansion<T, 2> e;
@@ -384,7 +384,7 @@ private:
     }
 
 protected:
-    //add 2 expansions
+    // add 2 expansions
     static size_t ExpansionSum(T const* const e, const size_t n, T const* const f, const size_t m, T* const h)
     {
         std::merge(e, e + n, f, f + m, h, absLess<T>);
@@ -412,7 +412,7 @@ protected:
         return hIndex;
     }
 
-    //scale an expansion by a constant
+    // scale an expansion by a constant
     static size_t ScaleExpansion(T const* const e, const size_t n, const T b, T* const h)
     {
         if (n == 0 || T(0) == b)
@@ -442,7 +442,7 @@ protected:
     }
 
 public:
-    //roundoff error of x = a + b
+    // roundoff error of x = a + b
     static inline T PlusTail(const T a, const T b, const T x)
     {
         const T bVirtual = x - a;
@@ -452,14 +452,14 @@ public:
         return aRoundoff + bRoundoff;
     }
 
-    //roundoff error of x = a + b if |a| > |b|
+    // roundoff error of x = a + b if |a| > |b|
     static inline T FastPlusTail(const T a, const T b, const T x)
     {
         const T bVirtual = x - a;
         return b - bVirtual;
     }
 
-    //roundoff error of x = a - b
+    // roundoff error of x = a - b
     static inline T MinusTail(const T a, const T b, const T x)
     {
         const T bVirtual = a - x;
@@ -469,7 +469,7 @@ public:
         return aRoundoff + bRoundoff;
     }
 
-    //split a into 2 nonoverlapping values
+    // split a into 2 nonoverlapping values
     static inline std::pair<T, T> Split(const T a)
     {
         const T c = a * Splitter;
@@ -478,7 +478,7 @@ public:
         return std::pair<T, T>(aHi, a - aHi);
     }
 
-    //roundoff error of x = a * b via dekkers product
+    // roundoff error of x = a * b via dekkers product
     static inline T DekkersProduct(const T /*a*/, const std::pair<T, T> aSplit, const T /*b*/, const std::pair<T, T> bSplit, const T p)
     {
         T y = p - T(aSplit.first * bSplit.first);
@@ -487,7 +487,7 @@ public:
         return T(aSplit.second * bSplit.second) - y;
     }
 
-    //roundoff error of x = a * b
+    // roundoff error of x = a * b
 #ifdef PREDICATES_CXX11_IS_SUPPORTED
     template <typename S = T>
     static typename std::enable_if<use_fma<S>::value, S>::type MultTail(const T a, const T b, const T p)
@@ -515,26 +515,32 @@ public:
     {
         return DekkersProduct(a, Split(a), b, Split(b), p);
     }
-    static T MultTailPreSplit(const T a, const T b, const std::pair<T, T> bSplit, const T p) { return DekkersProduct(a, Split(a), b, bSplit, p); }
+    static T MultTailPreSplit(const T a, const T b, const std::pair<T, T> bSplit, const T p)
+    {
+        return DekkersProduct(a, Split(a), b, bSplit, p);
+    }
 #endif
-    //expand a + b
+    // expand a + b
     static inline Expansion<T, 2> Plus(const T a, const T b)
     {
         const T x = a + b;
         return MakeExpansion(x, PlusTail(a, b, x));
     }
 
-    //expand a - b
-    static inline Expansion<T, 2> Minus(const T a, const T b) { return Plus(a, -b); }
+    // expand a - b
+    static inline Expansion<T, 2> Minus(const T a, const T b)
+    {
+        return Plus(a, -b);
+    }
 
-    //expand a * b
+    // expand a * b
     static inline Expansion<T, 2> Mult(const T a, const T b)
     {
         const T x = a * b;
         return MakeExpansion(x, MultTail(a, b, x));
     }
 
-    //expand the determinant of {{ax, ay}, {bx, by}} (unrolled Mult(ax, by) - Mult(ay, bx))
+    // expand the determinant of {{ax, ay}, {bx, by}} (unrolled Mult(ax, by) - Mult(ay, bx))
     static inline Expansion<T, 4> TwoTwoDiff(const T ax, const T by, const T ay, const T bx)
     {
         const T axby1 = ax * by;
@@ -561,7 +567,7 @@ public:
         return e;
     }
 
-    //TwoTwoDiff checking for zeros to avoid extra splitting
+    // TwoTwoDiff checking for zeros to avoid extra splitting
     static inline Expansion<T, 4> TwoTwoDiffZeroCheck(const T ax, const T by, const T ay, const T bx)
     {
         Expansion<T, 4> e;
@@ -577,7 +583,10 @@ public:
     }
 
     //(a * b) * c checking for zeros
-    static inline Expansion<T, 4> ThreeProd(const T a, const T b, const T c) { return (T(0) == a || T(0) == b || T(0) == c) ? Expansion<T, 4>() : Mult(a, b) * c; }
+    static inline Expansion<T, 4> ThreeProd(const T a, const T b, const T c)
+    {
+        return (T(0) == a || T(0) == b || T(0) == c) ? Expansion<T, 4>() : Mult(a, b) * c;
+    }
 };
 
 template <typename T>
