@@ -24,6 +24,9 @@
 #include <utility>
 #include <vector>
 
+#define noNeighbor 0xFFFFFFFF
+#define noVertex 0xFFFFFFFF
+
 namespace CDT
 {
 
@@ -61,9 +64,9 @@ struct CDT_EXPORT SuperGeometryType
 };
 
 /// Constant representing no valid neighbor for a triangle
-const static TriInd noNeighbor(std::numeric_limits<TriInd>::max());
+// const static TriInd noNeighbor(std::numeric_limits<TriInd>::max());
 /// Constant representing no valid vertex for a triangle
-const static VertInd noVertex(std::numeric_limits<VertInd>::max());
+// const static VertInd noVertex(std::numeric_limits<VertInd>::max());
 
 /**
  * Type used for storing layer depths for triangles
@@ -520,7 +523,12 @@ namespace CDT
 namespace detail
 {
 
-static mt19937 randGenerator(9001);
+// static mt19937 randGenerator(9001);
+mt19937 randGenerator()
+{
+    static mt19937 *gen = new mt19937(9001);
+    return *gen;
+}
 
 template <class RandomIt>
 void random_shuffle(RandomIt first, RandomIt last)
@@ -529,7 +537,7 @@ void random_shuffle(RandomIt first, RandomIt last)
     n = last - first;
     for (i = n - 1; i > 0; --i)
     {
-        std::swap(first[i], first[randGenerator() % (i + 1)]);
+        std::swap(first[i], first[randGenerator()() % (i + 1)]);
     }
 }
 
@@ -549,7 +557,7 @@ void Triangulation<T, TNearPointLocator>::insertVertices(
     TGetVertexCoordX getX,
     TGetVertexCoordY getY)
 {
-    detail::randGenerator.seed(9001); // ensure deterministic behavior
+    detail::randGenerator().seed(9001); // ensure deterministic behavior
     if (vertices.empty())
     {
         addSuperTriangle(envelopBox<T>(first, last, getX, getY));

@@ -325,21 +325,21 @@ public:
 
 // std::fma is faster than dekker's product when the processor instruction is available
 #ifdef FP_FAST_FMAF
-static const bool fp_fast_fmaf = true;
+#define fp_fast_fmaf true
 #else
-static const bool fp_fast_fmaf = false;
+#define fp_fast_fmaf false
 #endif
 
 #ifdef FP_FAST_FMA
-static const bool fp_fast_fma = true;
+#define fp_fast_fma true
 #else
-static const bool fp_fast_fma = false;
+#define fp_fast_fma false
 #endif
 
 #ifdef FP_FAST_FMAL
-static const bool fp_fast_fmal = true;
+#define fp_fast_fmal true
 #else
-static const bool fp_fast_fmal = false;
+#define fp_fast_fmal false
 #endif
 
 #ifdef PREDICATES_CXX11_IS_SUPPORTED

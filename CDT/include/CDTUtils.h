@@ -123,27 +123,13 @@ bool operator==(const CDT::V2d<T>& lhs, const CDT::V2d<T>& rhs)
     return lhs.x == rhs.x && lhs.y == rhs.y;
 }
 
-#ifdef CDT_USE_64_BIT_INDEX_TYPE
-typedef unsigned long long IndexSizeType;
-#else
 typedef unsigned int IndexSizeType;
-#endif
-
-#ifndef CDT_USE_STRONG_TYPING
 /// Index in triangle
 typedef unsigned char Index;
 /// Vertex index
 typedef IndexSizeType VertInd;
 /// Triangle index
 typedef IndexSizeType TriInd;
-#else
-/// Index in triangle
-BOOST_STRONG_TYPEDEF(unsigned char, Index);
-/// Vertex index
-BOOST_STRONG_TYPEDEF(IndexSizeType, VertInd);
-/// Triangle index
-BOOST_STRONG_TYPEDEF(IndexSizeType, TriInd);
-#endif
 
 typedef std::vector<TriInd> TriIndVec;  ///< Vector of triangle indices
 typedef array<VertInd, 3> VerticesArr3; ///< array of three vertex indices
